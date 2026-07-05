@@ -15,3 +15,6 @@ Imports:
     ggplot2,
     patchwork,
     scales
+Depends: 
+    R (>= 3.5)
+LazyData: true
