@@ -12,7 +12,9 @@ ggRootCellAtlas_expression(
   Annotation = "Atlas",
   colours = c("snow2", "yellow", "red3", "red4"),
   midpoint = NULL,
-  na.colour = "grey30"
+  na.colour = "grey30",
+  maps = root_maps(),
+  layout = NULL
 )
 }
 \arguments{
@@ -40,6 +42,14 @@ for fold changes or PCA scores. The middle colour of \code{colours} is placed at
 this value. Needs at least three colours.}
 
 \item{na.colour}{Colour of cells without a value. Defaults to dark grey.}
+
+\item{maps}{Maps to draw: a list of map data frames, or a single one.
+Defaults to the bundled root maps, \code{\link[=root_maps]{root_maps()}}. Use \code{\link[=svg_to_map]{svg_to_map()}} to
+build your own from an SVG drawing.}
+
+\item{layout}{Arrangement of the maps as a patchwork \code{design} string (see
+\code{\link[patchwork:wrap_plots]{patchwork::wrap_plots()}}). By default the bundled maps use the root
+layout and other maps a simple grid.}
 }
 \value{
 A patchwork object combining the heatmaps, one per root section,

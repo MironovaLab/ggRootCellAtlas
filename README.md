@@ -113,6 +113,51 @@ ggRootCellAtlas_annotation("TissueTypes", palette = c(
 Both functions take `na.colour` to change the colour of cells without a value
 or annotation (default dark grey).
 
+## Your own maps from SVG drawings
+
+ggPlantmap, which draws the maps, can only build new maps from ROI files
+exported by the image-analysis software Icy (`XML.to.ggPlantmap()`); it cannot
+read SVG drawings. `svg_to_map()` fills that gap, so a new layout, such as an
+epidermis or another species' root, can be drawn directly in a vector editor.
+
+Draw the cells in Inkscape or Illustrator, save as SVG, and import them with
+`svg_to_map()`. Each closed outline becomes one cell. Curves, arcs, polygons,
+rectangles, circles and transformed groups are all read. The bundled root maps
+were drawn this way, and importing their original drawings reproduces them
+exactly.
+
+Name the cells by fill colour, shape `id` or layer, and give them the labels of
+your cell groups:
+
+```r
+epidermis <- svg_to_map(
+  "epidermis.svg",
+  label_by = "fill",
+  labels = c("#FFFFFF" = "Atrichoblast_m1", "#CCCADB" = "Trichoblast_m1",
+             "#D1E9D1" = "Atrichoblast_e1", "#85859C" = "Trichoblast_e1"),
+  skip_fills = "#231F20"   # e.g. outline shapes that are not cells
+)
+```
+
+Colours without a label are listed in a warning.
+
+The plotting functions draw the bundled root maps unless told otherwise, so
+`maps` is only needed for your own maps. The imported labels are in `ROI.name`,
+which then serves as the group column:
+
+```r
+# bundled root maps: no maps argument needed
+ggRootCellAtlas_annotation("TissueTypes")
+
+# your own map
+ggRootCellAtlas_annotation("ROI.name", maps = epidermis)
+ggRootCellAtlas_expression(avg_exp, "AT1G01010", Annotation = "ROI.name", maps = epidermis)
+```
+
+Several maps can be passed as a list and arranged with a patchwork `layout`
+design, e.g. `layout = "12"` for two maps side by side. The bundled maps keep
+their root layout without a `layout` argument.
+
 ## Functions
 
 | Function | Purpose |
@@ -120,6 +165,7 @@ or annotation (default dark grey).
 | `ggRootCellAtlas_annotation()` | Colour the root by an annotation column |
 | `ggRootCellAtlas_expression()` | Colour the root by the expression of one gene |
 | `root_maps()` | The seven maps as a list of data frames |
+| `svg_to_map()` | Build a new map from an SVG drawing |
 | `generate_common_palette()` | One named colour per group, shared across maps |
 | `okabe_ito_pal()` | The default colour-blind safe palette |
 

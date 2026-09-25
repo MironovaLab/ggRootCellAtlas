@@ -84,6 +84,17 @@ test_that("cells without annotation use na.colour, dark grey by default", {
   }
 })
 
+test_that("custom maps and layouts can be used", {
+  maps <- load_maps()[c("ggPm.At.root.crosssection.m1", "ggPm.At.root.crosssection.e2")]
+  p <- ggRootCellAtlas_annotation("Sections", maps = maps)
+  expect_equal(unique(stats::na.omit(p[[2]]$data$Sections)), "e2")
+  expect_s3_class(ggRootCellAtlas_annotation("Sections", maps = maps, layout = "12"), "patchwork")
+  expect_s3_class(ggRootCellAtlas_annotation("Sections", maps = maps[[1]]), "patchwork")
+  expect_error(ggRootCellAtlas_annotation("Sections", maps = list(data.frame(x = 1))),
+               "missing the column")
+  expect_error(ggRootCellAtlas_annotation("Sections", maps = "m1"), "map data frame")
+})
+
 test_that("unknown group name gives an informative error", {
   expect_error(ggRootCellAtlas_annotation("NotAColumn"), "NotAColumn")
 })

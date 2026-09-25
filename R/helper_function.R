@@ -99,11 +99,37 @@ check_annotation_column <- function(column, maps, arg) {
   if (!is.character(column) || length(column) != 1) {
     stop(sprintf("`%s` must be a single column name.", arg), call. = FALSE)
   }
-  if (!column %in% names(maps[[1]])) {
-    available <- setdiff(names(maps[[1]]), c("ROI.id", "point", "x", "y"))
-    stop(sprintf("`%s` = \"%s\" is not a column of the root maps. Use one of: %s.",
+  missing_in <- !vapply(maps, function(m) column %in% names(m), logical(1))
+  if (any(missing_in)) {
+    available <- Reduce(intersect, lapply(maps, names))
+    available <- setdiff(available, c("ROI.id", "point", "x", "y"))
+    stop(sprintf("`%s` = \"%s\" is not a column of every map. Use one of: %s.",
                  arg, column, paste(available, collapse = ", ")), call. = FALSE)
   }
+}
+
+# `maps` as a named list of map data frames; a single data frame is accepted
+check_maps <- function(maps) {
+  if (is.data.frame(maps)) maps <- list(maps)
+  if (!is.list(maps) || length(maps) == 0 || !all(vapply(maps, is.data.frame, logical(1)))) {
+    stop("`maps` must be a map data frame or a list of them.", call. = FALSE)
+  }
+  for (i in seq_along(maps)) {
+    missing <- setdiff(c("ROI.id", "point", "x", "y"), names(maps[[i]]))
+    if (length(missing) > 0) {
+      stop(sprintf("Map %d is missing the column(s) %s.", i, paste(missing, collapse = ", ")),
+           call. = FALSE)
+    }
+  }
+  if (is.null(names(maps))) names(maps) <- paste0("map", seq_along(maps))
+  maps
+}
+
+# Combine the panels: the root layout for the bundled maps, otherwise `layout`
+# (a patchwork design) or patchwork's default grid
+combine_maps <- function(plots, maps, layout) {
+  if (is.null(layout) && identical(names(maps), map_names)) layout <- root_layout
+  wrap_plots(plots, design = layout, guides = "collect")
 }
 
 # Composite layout: longitudinal section (1) on the left, cross-sections

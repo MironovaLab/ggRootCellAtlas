@@ -13,6 +13,12 @@
 #'   groups), an unnamed vector of colours assigned in order, or a vector named
 #'   by group.
 #' @param na.colour Colour of cells without annotation. Defaults to dark grey.
+#' @param maps Maps to draw: a list of map data frames, or a single one.
+#'   Defaults to the bundled root maps, [root_maps()]. Use [svg_to_map()] to
+#'   build your own from an SVG drawing.
+#' @param layout Arrangement of the maps as a patchwork `design` string (see
+#'   [patchwork::wrap_plots()]). By default the bundled maps use the root
+#'   layout and other maps a simple grid.
 #'
 #' @return A patchwork object combining the annotated plots, one per
 #'   Arabidopsis thaliana root section, with a shared legend.
@@ -34,9 +40,10 @@
 #'
 #' @export
 
-ggRootCellAtlas_annotation <- function(Group_name, palette = okabe_ito_pal(), na.colour = "grey30") {
+ggRootCellAtlas_annotation <- function(Group_name, palette = okabe_ito_pal(), na.colour = "grey30",
+                                       maps = root_maps(), layout = NULL) {
 
-  maps <- root_maps()
+  maps <- check_maps(maps)
   check_annotation_column(Group_name, maps, "Group_name")
 
   # Generate color palette
@@ -50,5 +57,5 @@ ggRootCellAtlas_annotation <- function(Group_name, palette = okabe_ito_pal(), na
                         na.value = na.colour, name = Group_name)
   })
 
-  wrap_plots(plots, design = root_layout, guides = "collect")
+  combine_maps(plots, maps, layout)
 }

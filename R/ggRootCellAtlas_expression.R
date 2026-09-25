@@ -25,6 +25,7 @@
 #'   for fold changes or PCA scores. The middle colour of `colours` is placed at
 #'   this value. Needs at least three colours.
 #' @param na.colour Colour of cells without a value. Defaults to dark grey.
+#' @inheritParams ggRootCellAtlas_annotation
 #'
 #' @return A patchwork object combining the heatmaps, one per root section,
 #'   with a shared legend.
@@ -58,9 +59,10 @@
 
 ggRootCellAtlas_expression <- function(avg_exp, Gene, c1 = NA, c2 = NA, Annotation = "Atlas",
                                        colours = c("snow2", "yellow", "red3", "red4"),
-                                       midpoint = NULL, na.colour = "grey30") {
+                                       midpoint = NULL, na.colour = "grey30",
+                                       maps = root_maps(), layout = NULL) {
 
-  maps <- root_maps()
+  maps <- check_maps(maps)
   check_annotation_column(Annotation, maps, "Annotation")
 
   # Extract Gene expression as a named vector: group -> value
@@ -76,7 +78,7 @@ ggRootCellAtlas_expression <- function(avg_exp, Gene, c1 = NA, c2 = NA, Annotati
   values <- values[!is.na(names(values))]
   if (length(values) == 0) {
     stop(sprintf(paste0("None of the columns of `avg_exp` match the \"%s\" groups ",
-                        "of the root maps (e.g. %s)."),
+                        "of the maps (e.g. %s)."),
                  Annotation, paste(utils::head(groups, 3), collapse = ", ")),
          call. = FALSE)
   }
@@ -127,7 +129,7 @@ ggRootCellAtlas_expression <- function(avg_exp, Gene, c1 = NA, c2 = NA, Annotati
       labs(fill = Gene)
   })
 
-  wrap_plots(plots, design = root_layout, guides = "collect")
+  combine_maps(plots, maps, layout)
 }
 
 # Positions (0..1) of n colours so that the middle one sits at `mid`, with
