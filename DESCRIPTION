@@ -11,7 +11,7 @@ Description: Draws a longitudinal section and six cross-sections of the
     as one composite figure. Cells can be coloured by cell type, tissue, zone
     or section annotation, or by average gene expression per cell group, for
     example from a single-cell atlas analysed with Seurat. Built on
-    'ggPlantmap' and 'ggplot2'.
+    'ggPlantmap' and 'ggplot2'. New maps can be built from SVG drawings.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -26,7 +26,8 @@ Imports:
     scales,
     stats,
     stringr,
-    utils
+    utils,
+    xml2
 Suggests:
     dplyr,
     Matrix,
